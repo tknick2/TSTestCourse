@@ -4,11 +4,9 @@ import { Utils } from '../app/Utils'
 describe('Utils test suite', () => {
 
     beforeEach(() => {
-        console.log('before each');
     })
 
     beforeAll(() => {
-        console.log('before all');
     })
 
     test('first test', () => {
@@ -46,7 +44,7 @@ describe('Utils test suite', () => {
         }).toThrow('Empty url');
     });
 
-    test.only('test invalid URL with try catch', () => {
+    test('test invalid URL with try catch', () => {
         try {
             Utils.parseUrl('');
         } catch (error) {
