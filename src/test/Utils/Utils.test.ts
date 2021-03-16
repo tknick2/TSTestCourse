@@ -26,31 +26,4 @@ describe('Utils test suite', () => {
         const resultPath = Utils.getRequestBasePath(request);
         expect(resultPath).toBeFalsy();
     });
-
-    test('getRequestBody', async () => {
-
-
-        const requestMock = {
-            write: jest.fn(),
-            on: jest.fn(),
-            end: jest.fn()
-        }
-        jest.mock('http', ()=>{
-            request: jest.fn().mockImplementation((url, options, cb)=>{
-                cb(requestMock)
-            })
-        });
-        requestMock.on.mockImplementation((event, cb)=>{
-            console.log('incoming event: ' + event)
-            if (event == 'data') {
-                cb('{ "name":"John", "age":30, "city":"New York"}')
-            } else {
-                cb()
-            }
-
-        });
-        const response = await Utils.getRequestBody(requestMock as any);
-        console.log(123)
-
-    })
 });
