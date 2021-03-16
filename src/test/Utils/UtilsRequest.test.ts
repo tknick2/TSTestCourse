@@ -1,5 +1,4 @@
 import { Utils } from '../../app/Utils/Utils'
-import { IncomingMessage } from 'http';
 
 describe('Utils test suite', () => {
 
