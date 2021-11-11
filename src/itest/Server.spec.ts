@@ -1,6 +1,7 @@
 import * as axios from 'axios';
 import { HTTP_CODES, SessionToken, UserCredentials } from '../app/Models/ServerModels';
 import { UserCredentialsDbAccess } from "../app/Authorization/UserCredentialsDbAccess";
+import { Http2ServerRequest } from 'http2';
 
 
 axios.default.defaults.validateStatus = function () {
@@ -13,21 +14,27 @@ const itestUserCredentials: UserCredentials = {
     username: 'iTestUser'
 }
 
+
 describe('Server itest suite', () => {
-    let userCredentialsDBAccess: UserCredentialsDbAccess;
+    let userCredentialsDbAccess: UserCredentialsDbAccess;
     let sessionToken: SessionToken;
 
     beforeAll(() => {
-        userCredentialsDBAccess = new UserCredentialsDbAccess();
+        userCredentialsDbAccess = new UserCredentialsDbAccess();
     })
 
     test('server reachable', async () => {
         const response = await axios.default.options(serverUrl);
         expect(response.status).toBe(HTTP_CODES.OK);
-    });
+    });   
+
+    // populate DB with super user for accessing our API
+    // once the credentials are in the DB this should be skipped
+    // skipping because it breaks the 'check correct creds' test later on for some reason...
     test.skip('put credentials inside database', async () => {
-        await userCredentialsDBAccess.putUserCredential(itestUserCredentials);
+        await userCredentialsDbAccess.putUserCredential(itestUserCredentials);
     });
+
     test('reject invalid credentials', async () => {
         const response = await axios.default.post(
             (serverUrl + '/login'),
@@ -49,24 +56,27 @@ describe('Server itest suite', () => {
         );
         expect(response.status).toBe(HTTP_CODES.CREATED);
         sessionToken = response.data;
+
     });
+
     test('Query data', async () => {
         const response = await axios.default.get(
             (serverUrl + '/users?name=some'), {
-            headers: {
-                Authorization: sessionToken.tokenId
+                headers: {
+                    Authorization: sessionToken.tokenId
+                }
             }
-        }
         );
         expect(response.status).toBe(HTTP_CODES.OK);
     });
+
     test('Query data with invalid token', async () => {
         const response = await axios.default.get(
             (serverUrl + '/users?name=some'), {
-            headers: {
-                Authorization: sessionToken.tokenId + 'someStuff'
+                headers: {
+                    Authorization: sessionToken.tokenId + 'someStuff'
+                }
             }
-        }
         );
         expect(response.status).toBe(HTTP_CODES.UNAUTHORIZED);
     });
